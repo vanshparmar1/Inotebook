@@ -26,7 +26,7 @@ const UserSchema = new mongoose.Schema({
 });
 
 //optional but clean to have index on email for faster queries
-UserSchema.index({ email: 1 });
+// UserSchema.index({ email: 1 });
 
 const User = mongoose.model("User", UserSchema);
 export default User;
