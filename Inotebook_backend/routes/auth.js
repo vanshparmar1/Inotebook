@@ -3,9 +3,9 @@ import { body, validationResult } from "express-validator";
 import User from "../models/user.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-
+import fetchuser from "../middleware/fetchuser.js"; 
 const router = express.Router();
-//create a user using: POST "/api/auth/createuser". No login required
+//ROUTE 1 :create a user using: POST "/api/auth/createuser". No login required
 router.post(
   "/createuser",
   [
@@ -56,7 +56,7 @@ router.post(
 );
 
 
-//create a user using: POST "/api/auth/login".
+//ROUTE 2: create a user using: POST "/api/auth/login".
 router.post(
   "/login",
   [
@@ -93,5 +93,17 @@ router.post(
     }
   },
 );
+
+//ROUTE 3: create a user using: POST "/api/auth/getuser". login required
+router.post("/getuser", fetchuser, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const user = await User.findById(userId).select("-password");
+    res.json(user);
+  } catch (error) {
+    console.error("Get user error:", error);
+    res.status(500).send("Internal Server Error");
+}
+});
 
 export default router;
