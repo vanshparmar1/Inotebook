@@ -42,17 +42,53 @@ router.post(
       const JWT_SECRET = process.env.JWT_SECRET;
       const data = {
         user: {
-          id : newUser.id,
-        }
-      }
+          id: newUser.id,
+        },
+      };
       const jwtData = jwt.sign(data, JWT_SECRET);
       console.log(jwtData);
-      res.json({jwtData});
-
-    } 
-    
-    catch (error) {
+      res.json({ jwtData });
+    } catch (error) {
       console.error("Create user error:", error);
+      return res.status(500).send("Internal Server Error");
+    }
+  },
+);
+
+
+//create a user using: POST "/api/auth/login".
+router.post(
+  "/login",
+  [
+    body("email", "Enter a valid email").isEmail(),
+    body("password", "password cannot be blank").exists(),
+  ],
+  async (req, res) => {
+    //if there are errors, return bad request and the errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const { email, password } = req.body;
+    try {
+      const user = await User.findOne({ email });
+      if (!user) {
+        return res.status(400).json({ error: "Invalid credentials" });
+      }
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return res.status(400).json({ error: "Invalid credentials" });
+      }
+      const JWT_SECRET = process.env.JWT_SECRET;
+      const data = {
+        user: {
+          id: user.id,
+        },
+      };
+      const authtoken = jwt.sign(data, JWT_SECRET);
+      res.json({ authtoken });
+    } catch (error) {
+      console.error("Login error:", error);
       return res.status(500).send("Internal Server Error");
     }
   },
