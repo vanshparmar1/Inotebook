@@ -1,13 +1,17 @@
 import react from "react";
-
+import { useContext } from "react";
+import { useEffect } from "react";
+import NoteContext from "../context/notecontext";
 const About = () => {
+  const a = useContext(NoteContext);
+  useEffect(() => {
+    a.update();
+  }, []);
   return (
     <div>
       <h1>About iNotebook</h1>
       <p>
-        iNotebook is a cloud-based note-taking application that allows you to
-        store and manage your notes securely.
-        (This is About)
+        (This is About {a.state.name}, {a.state.age})
       </p>
     </div>
   );
